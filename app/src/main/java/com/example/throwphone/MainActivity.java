@@ -1,10 +1,7 @@
 package com.example.throwphone;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -13,8 +10,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import com.example.throwphone.SensorManagerJava;
 
 public class MainActivity extends Activity implements SensorEventListener {
 
@@ -29,20 +24,50 @@ public class MainActivity extends Activity implements SensorEventListener {
     private float lastZ = 0;
      private float distance = 0;
 
+     private boolean Active;
+
+     private SensorManager sensorManager;
+     private Sensor accelerometer;
+     private long throwStartTime;
+     private boolean isThrown = false;
+
+     private float GRAVITY = 9.81f;
+     private final float STOP_THRESHOLD = 15f;
+
     @Override
     public final void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SensorManager rSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        Sensor accSensor = rSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        rSensorManager.registerListener(this, accSensor, SensorManager.SENSOR_DELAY_FASTEST);
-
         accText = findViewById(R.id.ScoreHere);
 
-        accText.setText("working");
+        accText.setText("" + System.currentTimeMillis());
+
+        SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_FASTEST);
+
+        Button goButtonStart = (Button) findViewById(R.id.buttonStart);
+        goButtonStart.setOnClickListener(new View.OnClickListener(){
+
+
+
+            @Override
+            public void onClick(View view)
+            {
+                if (Active == true)
+                {
+                    Stop();
+                    Start();
+                }
+                else
+                {
+                    Start();
+                }
+            }
+        });
     }
-    @Override
+
     /*public void onSensorChanged(SensorEvent sensorEvent) {
         float accX = sensorEvent.values[0];
         float accY = sensorEvent.values[1];
@@ -79,7 +104,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 MaxValue = distance;
             }
         }*/
-    public void onSensorChanged(SensorEvent sensorEvent) {
+    /*public void onSensorChanged(SensorEvent sensorEvent) {
         if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 
             float accX = sensorEvent.values[0];
@@ -104,8 +129,52 @@ public class MainActivity extends Activity implements SensorEventListener {
 
             lastTimestamp = 0;
         }
+    }*/
+
+   private void Start () {
+       distance = 0;
+       Active = true;
+       MaxValue = 0;
+       accText.setText("" + 0 + "m");
+       isThrown = false;
+   }
+
+    private void Stop ()
+    {
+        Active = false;
     }
 
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (Active == true) {
+            if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                float x = sensorEvent.values[0];
+                float y = sensorEvent.values[1];
+                float z = sensorEvent.values[2];
+                float acceleration = (float) Math.sqrt(x * x + y * y + z * z);
+
+                GRAVITY = acceleration - sensorManager.GRAVITY_EARTH;
+
+                if (acceleration > 30 && !isThrown) {
+                    throwStartTime = System.currentTimeMillis();
+                    isThrown = true;
+                }
+
+                if (acceleration < 30 && isThrown)
+                {
+                    Stop();
+
+                    long throwTime = System.currentTimeMillis() - throwStartTime;
+                    float distance = 0.5f * (GRAVITY) * (throwTime / 1000f) * (throwTime / 1000f);
+
+                    String TwoDic = String.format("%.4f", distance);
+
+                        accText.setText("" + TwoDic + "m");
+                        MaxValue = distance;
+
+                }
+            }
+        }
+    }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
