@@ -5,8 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 public class DataManager extends AppCompatActivity {
 
     private static float totalDistance = 0;
-
-    private static long totalThrowTime = 0;
     private static int numberOfThrows = 0;
     private static float highScore = 0;
     private static float lowScore = 0;
@@ -14,19 +12,14 @@ public class DataManager extends AppCompatActivity {
     public static void addDistance(float distanceFloat){
         totalDistance += distanceFloat;
 
-        if (distanceFloat < highScore){
+        if (distanceFloat > highScore){
             highScore = distanceFloat;
         }
     }
     public static double getTotalDistance(){
         return totalDistance;
     }
-    public static long getTotalThrowTime() {
-        return totalThrowTime;
-    }
-    public static void addTotalThrowTime(long totalTime) {
-        totalThrowTime += totalTime;
-    }
+
 
 
     public static int getNumberOfThrows() {
@@ -52,7 +45,6 @@ public class DataManager extends AppCompatActivity {
 
     public static void resetValues(){
         totalDistance = 0;
-        totalThrowTime = 0;
         numberOfThrows = 0;
         highScore = 0;
         lowScore = 0;

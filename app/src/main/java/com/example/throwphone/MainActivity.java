@@ -183,7 +183,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                     MaxValue = distance;
 
                     DataManager.addDistance(distance);
-                    DataManager.addTotalThrowTime(throwTime);
                     DataManager.addNumberOfThrows();
 
                     if (DataManager.getLowScore() == 0)
