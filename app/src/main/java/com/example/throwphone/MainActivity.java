@@ -2,6 +2,8 @@ package com.example.throwphone;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -17,11 +19,11 @@ public class MainActivity extends Activity implements SensorEventListener {
     private TextView accText;
     private float MaxValue;
 
-    private long lastTimestamp = 0;
+    /*private long lastTimestamp = 0;
     private float lastDropAcc = 0;
     private float lastX = 0;
     private float lastY = 0;
-    private float lastZ = 0;
+    private float lastZ = 0;*/
      private float distance = 0;
 
      private boolean Active;
@@ -32,7 +34,8 @@ public class MainActivity extends Activity implements SensorEventListener {
      private boolean isThrown = false;
 
      private float GRAVITY = 9.81f;
-     private final float STOP_THRESHOLD = 15f;
+
+     //private final float STOP_THRESHOLD = 15f;
 
     @Override
     public final void onCreate (Bundle savedInstanceState) {
@@ -41,16 +44,24 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         accText = findViewById(R.id.ScoreHere);
 
-        accText.setText("" + System.currentTimeMillis());
+        accText.setText("Score");
 
         SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_FASTEST);
 
+        Button goStatButton = (Button) findViewById(R.id.buttonStat);
+        goStatButton.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view){
+                startActivity(new Intent(MainActivity.this,StatActivity.class));
+            }
+                                        });
+
+
         Button goButtonStart = (Button) findViewById(R.id.buttonStart);
         goButtonStart.setOnClickListener(new View.OnClickListener(){
-
-
 
             @Override
             public void onClick(View view)
@@ -168,8 +179,18 @@ public class MainActivity extends Activity implements SensorEventListener {
 
                     String TwoDic = String.format("%.4f", distance);
 
-                        accText.setText("" + TwoDic + "m");
-                        MaxValue = distance;
+                    accText.setText("" + TwoDic + "m");
+                    MaxValue = distance;
+
+                    DataManager.addDistance(distance);
+                    DataManager.addTotalThrowTime(throwTime);
+                    DataManager.addNumberOfThrows();
+
+                    if (DataManager.getLowScore() == 0)
+                    {
+                         DataManager.addLowScore(distance);
+                    }
+
 
                 }
             }
@@ -181,4 +202,21 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     }
 
+
+    /*private void updateTotalDistance (){
+        SharedPreferences sharedPreferences = getSharedPreferences("totalDistance", Context.MODE_PRIVATE);
+        float totalDistance = sharedPreferences.getFloat("totalDistance", 0f);
+        totalDistance += distance;
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putFloat("totalDistance", totalDistance);
+        editor.apply();
+
+
+    }
+    public void displayTotalDistance(){
+        SharedPreferences sharedPreferences = getSharedPreferences("totalDistance", Context.MODE_PRIVATE);
+        float totalDistance = sharedPreferences.getFloat("totalDistance", 0f);
+        TextView totalDistanceTextView = findViewById(R.id.totalDistanceTXT);
+        totalDistanceTextView.setText(String.format("Distance in total" + "%.2f", totalDistance) + "m");
+    }*/
 }

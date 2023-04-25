@@ -13,6 +13,8 @@ public class StatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stats);
+        /*MainActivity mainActivity = new MainActivity();
+        mainActivity.displayTotalDistance();*/
 
         Button goBackButton = (Button) findViewById(R.id.buttonBack);
 
@@ -23,6 +25,8 @@ public class StatActivity extends AppCompatActivity {
                 startActivity(new Intent(StatActivity.this,MainActivity.class));
             }
         });
+
+
 
     }
 }
